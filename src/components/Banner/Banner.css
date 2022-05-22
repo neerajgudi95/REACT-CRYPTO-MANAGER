@@ -1,0 +1,26 @@
+.banner {
+    background: url('../../../public/crytpo-banner-bg.jpg'), rgba(0, 0, 0, 0.7);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    height: 400px;
+    background-blend-mode: luminosity;
+    width: 100%;
+}
+
+
+.bannerContent {
+    text-align: center;
+}
+
+.banner h1 {
+    font-size: 4rem;
+    font-weight: 800;
+    color: white;
+}
+
+.banner p {
+    margin: 20px 0;
+    color: rgb(175, 175, 175);
+    font-size: 15px;
+}

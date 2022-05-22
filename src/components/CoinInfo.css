@@ -1,0 +1,44 @@
+.coinInfo {
+    color: white;
+    height: 100%;
+}
+
+.desc a {
+    color: gold;
+    text-decoration: none;
+}
+
+.desc a:hover {
+    color: rgb(209, 184, 44);
+}
+
+.coinInfo img {
+    text-align: center;
+}
+
+.coinInfo h1 {
+    text-align: center;
+    margin: 20px 0;
+    font-weight: bolder;
+}
+
+.desc {
+    text-align: justify;
+    padding: 10px;
+}
+
+.otherInfo {
+    width: 100%;
+    padding: 10px;
+}
+
+.otherInfo p {
+    display: flex;
+    align-items: center;
+    font-size: 22px;
+}
+
+.title {
+    font-weight: bold;
+    margin-right: 10px;
+}
