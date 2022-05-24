@@ -2,48 +2,72 @@ import {
   TableContainer,
   LinearProgress,
   TableHead,
-  TableRow,
   TableBody,
   TableCell,
   Table,
   Pagination,
 } from "@mui/material";
 import axios from "axios";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useReducer } from "react";
 import { Container, Form } from "react-bootstrap";
 import { CoinList } from "../../config/apiEndpoints";
 import { CryptoState } from "../../CryptoContext";
-import { useHistory } from "react-router-dom";
-import { millify } from "millify";
+import CoinsTableLayout from "./CoinsTableLayout";
+
+const sortReducer = (state = { sortedList: [] }, action) => {
+  state.sortedList = action.payload;
+  switch (action.type) {
+    case "0":
+      return state.sortedList;
+    case "1":
+      console.log("name sorted");
+      return [...state.sortedList.sort((a, b) => (a.name > b.name ? 1 : -1))];
+    case "2":
+      return [
+        ...state.sortedList.sort((a, b) => b.current_price - a.current_price),
+      ];
+    case "3":
+      return [
+        ...state.sortedList.sort((a, b) => a.current_price - b.current_price),
+      ];
+    case "4":
+      return [...state.sortedList.sort((a, b) => b.market_cap - a.market_cap)];
+    case "5":
+      return [...state.sortedList.sort((a, b) => a.market_cap - b.market_cap)];
+    default:
+      return [...action.payload];
+  }
+};
 
 const CoinsTable = () => {
-  const [coins, setCoins] = useState([]);
+  // const [coins, setCoins] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const { currency, symbol } = CryptoState();
-  const history = useHistory();
+  const { currency } = CryptoState();
+  const [state, dispatcher] = useReducer(sortReducer);
 
   const fetchCryptoCoins = useCallback(async () => {
     setIsLoading(true);
-    const { data } = await axios
+    const data = await axios
       .get(CoinList(currency))
       .catch((err) => console.log(err.message));
-    setCoins(data);
+    dispatcher({ type: 0, payload: data.data });
     setIsLoading(false);
   }, [currency]);
 
+  // market_cap current_price
+  useEffect(() => {
+    fetchCryptoCoins();
+  }, [fetchCryptoCoins]);
+
   const searchCrypto = () => {
-    return coins.filter(
+    return state?.filter(
       (coin) =>
         coin.name.toLowerCase().includes(search.toLocaleLowerCase()) ||
         coin.symbol.toLowerCase().includes(search.toLocaleLowerCase())
     );
   };
-
-  useEffect(() => {
-    fetchCryptoCoins();
-  }, [fetchCryptoCoins]);
 
   return (
     <Container
@@ -52,16 +76,42 @@ const CoinsTable = () => {
       style={{ color: "white" }}
     >
       <h4 style={{ fontSize: "2rem" }}>Cryptocurrency Prices by Makret Cap</h4>
-      <Form.Control
-        className="w-1 bg-dark text-light mt-3"
-        type="text"
-        placeholder="enter name or symbol of the crypto you want"
+      <div
+        className="d-flex p-2 col-example justify-content-between align-items-center"
         style={{
-          border: "1px solid rgba(255,255,255,0.4)",
-          maxWidth: "800px",
+          width: "80%",
         }}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      >
+        <Form.Control
+          className="bg-dark text-light"
+          type="text"
+          placeholder="enter name or symbol of the crypto you want"
+          style={{
+            border: "1px solid rgba(255,255,255,0.4)",
+            maxWidth: "800px",
+          }}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <Form.Select
+          aria-label="select sort value"
+          onChange={(e) => dispatcher({ type: e.target.value, payload: state })}
+          className="bg-dark text-light"
+          placeholder="sort by"
+          style={{
+            width: "100px",
+            color: "white",
+            cursor: "pointer",
+            flex: "0.7",
+          }}
+        >
+          <option value="0">Sort by</option>
+          <option value="1">Name</option>
+          <option value="2">Price - High to Low</option>
+          <option value="3">Price - Low to High</option>
+          <option value="4">Market Cap - High to Low</option>
+          <option value="5">Market Cap - Low to High</option>
+        </Form.Select>
+      </div>
       <Container>
         {isLoading ? (
           <LinearProgress
@@ -83,7 +133,7 @@ const CoinsTable = () => {
                 className="bg-warning"
                 style={{ borderRadius: "10px" }}
               >
-                {["S.No.", "Coin", "Price", "24h Change", "Market Cap"].map(
+                {["Crytocurrency", "Price", "24h Change", "Market Cap"].map(
                   (head) => (
                     <TableCell
                       style={{
@@ -92,8 +142,7 @@ const CoinsTable = () => {
                         fontFamily: "Nunito",
                       }}
                       key={head}
-                      align="center"
-                      // {head === "Coin" ? "left" : "center"}
+                      align={head === "Crytocurrency" ? "left" : "center"}
                     >
                       {head}
                     </TableCell>
@@ -102,72 +151,15 @@ const CoinsTable = () => {
               </TableHead>
               <TableBody>
                 {searchCrypto()
-                  .slice((page - 1) * 10, (page - 1) * 10 + 10)
-                  .map((row, idx) => {
+                  ?.slice((page - 1) * 10, (page - 1) * 10 + 10)
+                  .map((row) => {
                     const profit = row.price_change_percentage_24h > 0;
                     return (
-                      <TableRow
-                        onClick={() => history.push(`/coins/${row.id}`)}
+                      <CoinsTableLayout
                         key={row.name}
-                        style={{
-                          cursor: "pointer",
-                        }}
-                        sx={{
-                          "&:last-child td, &:last-child th": { border: 0 },
-                        }}
-                        hover
-                      >
-                        <TableCell
-                          className="text-center"
-                          style={{ color: "white" }}
-                        >
-                          <span>{idx + 1}</span>
-                        </TableCell>
-                        <TableCell
-                          scope="row"
-                          className="d-flex align-items-center justify-content-center"
-                          style={{ color: "white" }}
-                        >
-                          <img
-                            src={row?.image}
-                            alt={row?.name}
-                            style={{ height: "80px", marginRight: "10px" }}
-                          />{" "}
-                          {/* //height="80" /> */}
-                          <div className="d-flex flex-column ms-3">
-                            <span style={{ textTransform: "uppercase" }}>
-                              {row.symbol}
-                            </span>
-                            <span style={{ color: "darkgrey" }}>
-                              {row.name}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <h4
-                            style={{ color: "gold", fontSize: "22px" }}
-                          >{`${symbol} ${new Intl.NumberFormat("en-US", {
-                            maximumSignificantDigits: 3,
-                          }).format(row?.current_price.toFixed(2))}`}</h4>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <span
-                            style={{
-                              fontWeight: "bold",
-                              color: profit ? "green" : "red",
-                            }}
-                          >
-                            {profit && "+"}
-                            {row.price_change_percentage_24h.toFixed(2)}%
-                          </span>
-                        </TableCell>
-                        <TableCell
-                          className="text-center"
-                          style={{ color: "white" }}
-                        >
-                          <span>{`${symbol}${millify(row.market_cap)}`}</span>
-                        </TableCell>
-                      </TableRow>
+                        row={row}
+                        profit={profit}
+                      />
                     );
                   })}
               </TableBody>
@@ -175,8 +167,9 @@ const CoinsTable = () => {
           </TableContainer>
         )}
       </Container>
+      {/* {console.log(typeof parseInt((state?.length / 10).toFixed(0)))} */}
       <Pagination
-        count={+(searchCrypto()?.length / 10).toFixed(0)}
+        count={parseInt((state?.length / 10).toFixed(0))}
         className="m-2 d-flex justify-content-center"
         onChange={(_, value) => {
           setPage(value);
