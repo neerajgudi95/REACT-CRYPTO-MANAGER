@@ -76,7 +76,6 @@ const CryptoContext = ({ children }) => {
     }
     return () => {
       unsubscribe();
-      console.log(`firebase unsubscribed`);
     };
   }, [user]);
 
