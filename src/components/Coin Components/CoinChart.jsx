@@ -2,8 +2,8 @@ import { Button, CircularProgress } from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { HistoricalChart } from "../config/apiEndpoints";
-import { CryptoState } from "../CryptoContext";
+import { HistoricalChart } from "../../config/apiEndpoints";
+import { CryptoState } from "../../CryptoContext";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -14,13 +14,13 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { chartDays } from "../config/data";
+import { chartDays } from "../../config/data";
 
 const CoinChart = () => {
   const { currency } = CryptoState();
   const { coinId } = useParams();
   const [coinChartData, setChartCoinData] = useState([]);
-  const [days, setDays] = useState("24h");
+  const [days, setDays] = useState(1);
   ChartJS.register(
     CategoryScale,
     LinearScale,

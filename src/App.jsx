@@ -5,17 +5,20 @@ import "./App.css";
 // import { Header, Homepage, CoinDetails } from "./components";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { CircularProgress } from "@mui/material";
+import AuthenticationAlert from "./components/UserAuthentication/AuthenticationAlert";
 
 const Header = React.lazy(() => import("./components/Header"));
 const Homepage = React.lazy(() => import("./components/Homepage"));
-const CoinDetails = React.lazy(() => import("./components/CoinDetails"));
+const CoinDetails = React.lazy(() =>
+  import("./components/Coin Components/CoinDetails")
+);
 
 const App = () => {
   return (
     <div className="app">
       <Suspense
         fallback={
-          <div className="d-flex align-items-center justify-content-center flex-grow-1">
+          <div className="fallback bg-dark d-flex align-items-center justify-content-center flex-grow-1">
             <CircularProgress
               style={{ color: "gold" }}
               size={250}
@@ -31,6 +34,7 @@ const App = () => {
             <Route exact path="/coins/:coinId" component={CoinDetails} />
           </Switch>
         </div>
+        <AuthenticationAlert/>
       </Suspense>
     </div>
   );

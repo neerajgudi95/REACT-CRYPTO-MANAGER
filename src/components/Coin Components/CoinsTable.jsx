@@ -7,58 +7,21 @@ import {
   Table,
   Pagination,
 } from "@mui/material";
-import axios from "axios";
-import React, { useCallback, useEffect, useState, useReducer } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Form } from "react-bootstrap";
-import { CoinList } from "../../config/apiEndpoints";
 import { CryptoState } from "../../CryptoContext";
 import CoinsTableLayout from "./CoinsTableLayout";
-
-const sortReducer = (state = { sortedList: [] }, action) => {
-  state.sortedList = action.payload;
-  switch (action.type) {
-    case "0":
-      return state.sortedList;
-    case "1":
-      console.log("name sorted");
-      return [...state.sortedList.sort((a, b) => (a.name > b.name ? 1 : -1))];
-    case "2":
-      return [
-        ...state.sortedList.sort((a, b) => b.current_price - a.current_price),
-      ];
-    case "3":
-      return [
-        ...state.sortedList.sort((a, b) => a.current_price - b.current_price),
-      ];
-    case "4":
-      return [...state.sortedList.sort((a, b) => b.market_cap - a.market_cap)];
-    case "5":
-      return [...state.sortedList.sort((a, b) => a.market_cap - b.market_cap)];
-    default:
-      return [...action.payload];
-  }
-};
 
 const CoinsTable = () => {
   // const [coins, setCoins] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const { currency } = CryptoState();
-  const [state, dispatcher] = useReducer(sortReducer);
-
-  const fetchCryptoCoins = useCallback(async () => {
-    setIsLoading(true);
-    const data = await axios
-      .get(CoinList(currency))
-      .catch((err) => console.log(err.message));
-    dispatcher({ type: 0, payload: data.data });
-    setIsLoading(false);
-  }, [currency]);
-
-  // market_cap current_price
+  const { state, fetchCryptoCoins, dispatcher } = CryptoState();
   useEffect(() => {
+    setIsLoading(true);
     fetchCryptoCoins();
+    setIsLoading(false);
   }, [fetchCryptoCoins]);
 
   const searchCrypto = () => {
@@ -72,8 +35,8 @@ const CoinsTable = () => {
   return (
     <Container
       fluid
-      className="bg-dark text-center mt-4 d-flex align-items-center justify-content-center flex-column"
-      style={{ color: "white" }}
+      className=" text-center mt-4 d-flex align-items-center justify-content-center flex-column"
+      style={{ color: "white", backgroundColor: "#1B1A17" }}
     >
       <h4 style={{ fontSize: "2rem" }}>Cryptocurrency Prices by Makret Cap</h4>
       <div
@@ -167,9 +130,8 @@ const CoinsTable = () => {
           </TableContainer>
         )}
       </Container>
-      {/* {console.log(typeof parseInt((state?.length / 10).toFixed(0)))} */}
       <Pagination
-        count={parseInt((state?.length / 10).toFixed(0))}
+        count={parseInt((searchCrypto()?.length / 10).toFixed(0))}
         className="m-2 d-flex justify-content-center"
         onChange={(_, value) => {
           setPage(value);

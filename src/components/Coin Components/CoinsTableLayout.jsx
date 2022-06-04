@@ -13,6 +13,7 @@ const CoinsTableLayout = ({ row, profit }) => {
       onClick={() => history.push(`/coins/${row.id}`)}
       style={{
         cursor: "pointer",
+        backgroundColor: "transparent",
       }}
       sx={{
         "&:last-child td, &:last-child th": { border: 0 },

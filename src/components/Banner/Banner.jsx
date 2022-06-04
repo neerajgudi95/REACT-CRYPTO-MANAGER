@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Row } from "react-bootstrap";
 import "./Banner.css";
-import CoinsCarousel from "./CoinsCarousel";
+import CoinsCarousel from "../Coin Components/CoinsCarousel";
 const Banner = () => {
   return (
     <Container>
@@ -11,7 +11,7 @@ const Banner = () => {
             <h1>CRYPTO MANAGER</h1>
             <p>Get all Info regarding various cryptocurrencies</p>
           </Row>
-          <Row>
+          <Row className="mw-50">
             <CoinsCarousel />
           </Row>
         </div>
